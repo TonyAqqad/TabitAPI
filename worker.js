@@ -129,24 +129,28 @@ async function handleMenuSummary(request, env) {
     const response = await fetchTabit('/menu', config, { method: 'GET' });
     const fullMenu = await response.json();
     
-    // Create condensed summary (array format)
-    const summary = {
-      status: 'success',
-      message: 'Menu summary',
-      data: fullMenu.slice(0, 10).map(category => ({
-        type: category.type,
-        name: category.name,
-        id: category.id,
-        items: category.children?.slice(0, 5).map(item => ({
-          id: item.id,
-          name: item.name,
-          price: item.price,
-          description: item.description?.substring(0, 100) || ''
-        })) || []
-      }))
-    };
+    // Create simple list format for GHL
+    const allItems = [];
+    fullMenu.slice(0, 10).forEach(category => {
+      if (category.children && category.children.length > 0) {
+        category.children.slice(0, 5).forEach(item => {
+          allItems.push({
+            id: item.id,
+            name: item.name,
+            category: category.name,
+            price: item.price,
+            description: item.description?.substring(0, 100) || ''
+          });
+        });
+      }
+    });
     
-    return json(summary);
+    // Return simple, flat structure
+    return json({
+      success: true,
+      count: allItems.length,
+      items: allItems
+    });
   } catch (error) {
     log('menu-summary error', { error: error.message });
     return json({ error: error.message }, 500);
@@ -329,7 +333,24 @@ export default {
           if (path === '/health') return handleHealth();
           if (path === '/diag' && env.DEBUG === 'true') return handleDiag(env);
           if (path === '/catalog') return handleCatalog(request, env);
-          if (path === '/menu-summary') return handleMenuSummary(request, env);
+          if (path === '/menu-summary') {
+            // Add CORS headers for GHL
+            try {
+              const result = await handleMenuSummary(request, env);
+              // Clone response and add CORS headers
+              const corsHeaders = {
+                'Access-Control-Allow-Origin': '*',
+                'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+                'Access-Control-Allow-Headers': 'Content-Type, X-API-Key',
+              };
+              return new Response(result.body, {
+                ...result,
+                headers: { ...result.headers, ...corsHeaders },
+              });
+            } catch (error) {
+              return json({ error: error.message }, 500);
+            }
+          }
           break;
           
         case 'POST':
