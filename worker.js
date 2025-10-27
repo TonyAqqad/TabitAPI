@@ -366,7 +366,18 @@ export default {
       // Route handlers
       switch (method) {
         case 'GET':
-          if (path === '/') return handleRoot();
+        case 'HEAD':
+          if (path === '/') {
+            const response = await handleRoot();
+            // For HEAD requests, don't send body
+            if (method === 'HEAD') {
+              return new Response(null, { 
+                status: response.status, 
+                headers: response.headers 
+              });
+            }
+            return response;
+          }
           if (path === '/health') return handleHealth();
           if (path === '/diag' && env.DEBUG === 'true') return handleDiag(env);
           if (path === '/catalog') return handleCatalog(request, env);
