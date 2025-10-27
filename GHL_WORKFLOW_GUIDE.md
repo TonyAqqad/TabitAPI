@@ -20,7 +20,7 @@ This approach is **more reliable, faster, and properly supported** by GHL.
 │  (Scheduled)    │
 └────────┬────────┘
          │
-         │ GET /menu-summary
+         │ GET /catalog
          ↓
 ┌─────────────────────┐
 │ Cloudflare Worker   │
@@ -101,16 +101,19 @@ Choose ONE of these trigger types:
 3. Configure:
 
 ```
-Method: GET
-URL: https://tabit-worker.tony-578.workers.dev/menu-summary
+Method: GET (or POST, both work)
+URL: https://tabit-worker.tony-578.workers.dev/catalog
 
 Headers:
   Accept: application/json
+  X-API-Key: wqiuefdy8y18e
 
 Response: 
   Save to custom field: menu_data
   Store as: JSON string
 ```
+
+**Note**: Using `/catalog` gives you the **complete menu** with full structure (~269KB), perfect for storing once and accessing later.
 
 4. **Test** the HTTP request (should return 200 OK)
 
@@ -288,8 +291,9 @@ When Tabit updates menu → Worker forwards → GHL workflow → Refreshes menu_
 ### Menu not updating:
 - Check workflow is active
 - Check HTTP request action succeeds
-- Verify URL is correct
-- Test endpoint manually in browser
+- Verify URL is correct: `https://tabit-worker.tony-578.workers.dev/catalog`
+- Verify header: `X-API-Key: wqiuefdy8y18e`
+- Test endpoint manually in browser (with API key header)
 
 ### AI can't see menu:
 - Verify custom field access enabled
