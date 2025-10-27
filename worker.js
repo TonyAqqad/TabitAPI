@@ -22,9 +22,7 @@ function json(data, status = 200) {
 /**
  * Helper: Fetch from Tabit API with required headers
  */
-async function fetchTabit(path, init = {}) {
-  const config = env.TABIT_CONFIG;
-  
+async function fetchTabit(path, config, init = {}) {
   return fetch(`https://us-demo-middleware.tabit-stage.com${path}`, {
     ...init,
     headers: {
@@ -104,7 +102,7 @@ async function handleCatalog(request, env) {
     const config = env.TABIT_CONFIG;
     log('fetching with config', { hasIntegrator: !!config?.integratorToken, hasOrg: !!config?.orgToken });
     
-    const response = await fetchTabit('/menu', { method: 'GET' });
+    const response = await fetchTabit('/menu', config, { method: 'GET' });
     const data = await response.json();
     
     // Store in cache
@@ -179,7 +177,8 @@ async function handleOrder(request, env) {
   log('order received', { phone: Phone, item_count: ItemsArray.length });
   
   // Post to Tabit
-  const response = await fetchTabit('/order', {
+  const config = env.TABIT_CONFIG;
+  const response = await fetchTabit('/order', config, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(tabitPayload),
