@@ -278,6 +278,14 @@ export default {
       switch (method) {
         case 'GET':
           if (path === '/health') return handleHealth();
+          if (path === '/test') {
+            return json({
+              hasIntegratorToken: !!env.TABIT_INTEGRATOR_TOKEN,
+              hasOrgToken: !!env.TABIT_ORG_TOKEN,
+              integratorLen: env.TABIT_INTEGRATOR_TOKEN ? env.TABIT_INTEGRATOR_TOKEN.length : 0,
+              orgLen: env.TABIT_ORG_TOKEN ? env.TABIT_ORG_TOKEN.length : 0
+            });
+          }
           if (path === '/diag' && env.DEBUG === 'true') return handleDiag(env);
           if (path === '/catalog') return handleCatalog(request, env);
           break;
