@@ -321,6 +321,25 @@ function initConfig(env) {
 }
 
 /**
+ * Handler for root path
+ */
+async function handleRoot() {
+  return json({
+    service: 'Tabit API Proxy',
+    version: '1.0.0',
+    status: 'active',
+    endpoints: {
+      'GET /health': 'Health check',
+      'GET /catalog?api_key=...': 'Fetch full menu (requires API key)',
+      'GET /menu-summary?api_key=...': 'Fetch menu summary (requires API key)',
+      'POST /order': 'Submit order (requires API key)',
+      'POST /webhooks/tabit/menu-update': 'Receive menu update webhook',
+      'POST /webhooks/tabit/order-status': 'Receive order status webhook'
+    }
+  });
+}
+
+/**
  * Main request handler
  */
 export default {
@@ -329,6 +348,12 @@ export default {
       const url = new URL(request.url);
       const path = url.pathname;
       const method = request.method;
+      
+      // Redirect HTTP to HTTPS
+      if (url.protocol === 'http:') {
+        url.protocol = 'https:';
+        return Response.redirect(url.toString(), 301);
+      }
       
       // Initialize config
       env.TABIT_CONFIG = env.TABIT_CONFIG || initConfig(env);
@@ -341,6 +366,7 @@ export default {
       // Route handlers
       switch (method) {
         case 'GET':
+          if (path === '/') return handleRoot();
           if (path === '/health') return handleHealth();
           if (path === '/diag' && env.DEBUG === 'true') return handleDiag(env);
           if (path === '/catalog') return handleCatalog(request, env);
@@ -348,6 +374,7 @@ export default {
           break;
           
         case 'POST':
+          if (path === '/') return json({ error: 'Root path only accepts GET' }, 405);
           if (path === '/order') return handleOrder(request, env);
           if (path === '/catalog') return handleCatalog(request, env);
           if (path === '/menu-summary') return handleMenuSummary(request, env);
@@ -357,7 +384,7 @@ export default {
       }
       
       // Not found
-      return json({ error: 'Not Found' }, 404);
+      return json({ error: 'Not Found', availableEndpoints: '/health, /catalog, /menu-summary, /order' }, 404);
       
     } catch (error) {
       log('request error', { error: error.message, stack: error.stack });
