@@ -1,6 +1,7 @@
 {
   "info": {
-    "name": "Tabit API Proxy",
+    "name": "Tabit API Proxy - GHL Integration",
+    "description": "Test collection for Cloudflare Worker proxy with Tabit API integration",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "item": [
@@ -11,24 +12,98 @@
         "header": [],
         "url": {
           "raw": "https://tabit-worker.tony-578.workers.dev/health",
-          "host": ["tabit-worker.tony-578.workers.dev"],
+          "protocol": "https",
+          "host": ["tabit-worker", "tony-578", "workers", "dev"],
           "path": ["health"]
+        },
+        "description": "Check if worker is online"
+      }
+    },
+    {
+      "name": "Get Full Catalog (Query Param)",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "https://tabit-worker.tony-578.workers.dev/catalog?api_key=wqiuefdy8y18e",
+          "protocol": "https",
+          "host": ["tabit-worker", "tony-578", "workers", "dev"],
+          "path": ["catalog"],
+          "query": [
+            {
+              "key": "api_key",
+              "value": "wqiuefdy8y18e",
+              "description": "API Key as query parameter (GHL-compatible)"
+            }
+          ]
+        },
+        "description": "Fetch complete menu catalog with API key in query parameter (RECOMMENDED for GHL)"
+      }
+    },
+    {
+      "name": "Get Catalog (POST with Query)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{}"
+        },
+        "url": {
+          "raw": "https://tabit-worker.tony-578.workers.dev/catalog?api_key=wqiuefdy8y18e",
+          "protocol": "https",
+          "host": ["tabit-worker", "tony-578", "workers", "dev"],
+          "path": ["catalog"],
+          "query": [
+            {
+              "key": "api_key",
+              "value": "wqiuefdy8y18e"
+            }
+          ]
         }
       }
     },
     {
-      "name": "Get Catalog",
+      "name": "Get Menu Summary (Query Param)",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "https://tabit-worker.tony-578.workers.dev/menu-summary?api_key=wqiuefdy8y18e",
+          "protocol": "https",
+          "host": ["tabit-worker", "tony-578", "workers", "dev"],
+          "path": ["menu-summary"],
+          "query": [
+            {
+              "key": "api_key",
+              "value": "wqiuefdy8y18e",
+              "description": "Returns condensed menu (~8KB instead of ~269KB)"
+            }
+          ]
+        },
+        "description": "Fetch lightweight menu summary (alternative for GHL if catalog is too large)"
+      }
+    },
+    {
+      "name": "Get Catalog (Header Method - Fallback)",
       "request": {
         "method": "GET",
         "header": [
           {
             "key": "X-API-Key",
-            "value": "{{api_key}}"
+            "value": "wqiuefdy8y18e",
+            "description": "API Key in header (fallback for non-GHL clients)"
           }
         ],
         "url": {
           "raw": "https://tabit-worker.tony-578.workers.dev/catalog",
-          "host": ["tabit-worker.tony-578.workers.dev"],
+          "protocol": "https",
+          "host": ["tabit-worker", "tony-578", "workers", "dev"],
           "path": ["catalog"]
         }
       }
@@ -44,77 +119,27 @@
           },
           {
             "key": "X-API-Key",
-            "value": "{{api_key}}"
+            "value": "wqiuefdy8y18e"
           }
         ],
         "body": {
           "mode": "raw",
-          "raw": "{\n  \"ConsumerName\": \"John Doe\",\n  \"Phone\": \"+15551234567\",\n  \"OrderType\": \"takeaway\",\n  \"PickupEta\": \"2025-11-05T17:15:00Z\",\n  \"OrderNumber\": 12345,\n  \"ExtId\": \"ext_test_001\",\n  \"Items\": \"[{\\\"id\\\":\\\"2361\\\",\\\"name\\\":\\\"6 Chicken Wings\\\",\\\"count\\\":1,\\\"options\\\":[{\\\"id\\\":\\\"68e7b82e893d90398a570415\\\",\\\"name\\\":\\\"Serving/Prep\\\",\\\"value_id\\\":\\\"68e7b82e893d90398a570417\\\",\\\"value\\\":\\\"Mix\\\",\\\"count\\\":1},{\\\"id\\\":\\\"68e7b82e893d90398a570419\\\",\\\"name\\\":\\\"Dip\\\",\\\"value_id\\\":\\\"68e7b82e893d90398a57041a\\\",\\\"value\\\":\\\"Ranch Dip\\\",\\\"count\\\":1}]}]\"\n}"
+          "raw": "{\n  \"ConsumerName\": \"John Doe\",\n  \"Phone\": \"+1234567890\",\n  \"OrderType\": \"takeaway\",\n  \"OrderNumber\": 12345,\n  \"ExtId\": \"test_order_001\",\n  \"Items\": [\n    {\n      \"id\": \"2361\",\n      \"name\": \"6 Chicken Wings\",\n      \"count\": 1,\n      \"options\": [\n        {\n          \"id\": \"68e7b82e893d90398a570415\",\n          \"name\": \"Serving/Prep\",\n          \"value_id\": \"68e7b82e893d90398a570417\",\n          \"value\": \"Mix\",\n          \"count\": 1\n        },\n        {\n          \"id\": \"68e7b82e893d90398a570419\",\n          \"name\": \"Dip\",\n          \"value_id\": \"68e7b82e893d90398a57041a\",\n          \"value\": \"Ranch Dip\",\n          \"count\": 1\n        }\n      ]\n    }\n  ]\n}"
         },
         "url": {
           "raw": "https://tabit-worker.tony-578.workers.dev/order",
-          "host": ["tabit-worker.tony-578.workers.dev"],
+          "protocol": "https",
+          "host": ["tabit-worker", "tony-578", "workers", "dev"],
           "path": ["order"]
-        }
+        },
+        "description": "Submit a test order to Tabit"
       }
     },
     {
-      "name": "Menu Update Webhook",
+      "name": "Submit Order (Query Param)",
       "request": {
         "method": "POST",
-        "header": [],
-        "body": {
-          "mode": "raw",
-          "raw": "{\n  \"status\": \"updated\"\n}"
-        },
-        "url": {
-          "raw": "https://tabit-worker.tony-578.workers.dev/webhooks/tabit/menu-update",
-          "host": ["tabit-worker.tony-578.workers.dev"],
-          "path": ["webhooks", "tabit", "menu-update"]
-        }
-      }
-    },
-    {
-      "name": "Order Status Webhook",
-      "request": {
-        "method": "POST",
-        "header": [],
-        "body": {
-          "mode": "raw",
-          "raw": "{\n  \"status\": \"confirmed\",\n  \"external_id\": \"ext_test_001\",\n  \"order_number\": 12345\n}"
-        },
-        "url": {
-          "raw": "https://tabit-worker.tony-578.workers.dev/webhooks/tabit/order-status",
-          "host": ["tabit-worker.tony-578.workers.dev"],
-          "path": ["webhooks", "tabit", "order-status"]
-        }
-      }
-    },
-    {
-      "name": "Diagnostic (DEBUG only)",
-      "request": {
-        "method": "GET",
-        "header": [],
-        "url": {
-          "raw": "https://tabit-worker.tony-578.workers.dev/diag",
-          "host": ["tabit-worker.tony-578.workers.dev"],
-          "path": ["diag"]
-        }
-      }
-    },
-    {
-      "name": "Register Tabit Webhooks",
-      "request": {
-        "method": "PUT",
         "header": [
-          {
-            "key": "integrator-token",
-            "value": "{{tabit_integrator_token}}"
-          },
-          {
-            "key": "organization-token",
-            "value": "{{tabit_org_token}}"
-          },
           {
             "key": "Content-Type",
             "value": "application/json"
@@ -122,37 +147,131 @@
         ],
         "body": {
           "mode": "raw",
-          "raw": "{\n  \"callbackWebhook\": \"https://tabit-worker.tony-578.workers.dev/webhooks/tabit/order-status\",\n  \"menuWebhook\": \"https://tabit-worker.tony-578.workers.dev/webhooks/tabit/menu-update\"\n}"
+          "raw": "{\n  \"ConsumerName\": \"John Doe\",\n  \"Phone\": \"+1234567890\",\n  \"OrderType\": \"takeaway\",\n  \"OrderNumber\": 12345,\n  \"ExtId\": \"test_order_002\",\n  \"Items\": [\n    {\n      \"id\": \"2361\",\n      \"name\": \"6 Chicken Wings\",\n      \"count\": 1,\n      \"options\": [\n        {\n          \"id\": \"68e7b82e893d90398a570415\",\n          \"name\": \"Serving/Prep\",\n          \"value_id\": \"68e7b82e893d90398a570417\",\n          \"value\": \"Mix\",\n          \"count\": 1\n        }\n      ]\n    }\n  ]\n}"
         },
         "url": {
-          "raw": "https://us-demo-middleware.tabit-stage.com/third-party/me",
+          "raw": "https://tabit-worker.tony-578.workers.dev/order?api_key=wqiuefdy8y18e",
           "protocol": "https",
-          "host": ["us-demo-middleware", "tabit-stage", "com"],
-          "path": ["third-party", "me"]
+          "host": ["tabit-worker", "tony-578", "workers", "dev"],
+          "path": ["order"],
+          "query": [
+            {
+              "key": "api_key",
+              "value": "wqiuefdy8y18e"
+            }
+          ]
+        },
+        "description": "Submit order with API key in query parameter (GHL-compatible)"
+      }
+    },
+    {
+      "name": "Test Without API Key (Should Fail)",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "https://tabit-worker.tony-578.workers.dev/catalog",
+          "protocol": "https",
+          "host": ["tabit-worker", "tony-578", "workers", "dev"],
+          "path": ["catalog"]
+        },
+        "description": "Test that API key validation works (should return 401)"
+      }
+    },
+    {
+      "name": "Test Invalid API Key",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "https://tabit-worker.tony-578.workers.dev/catalog?api_key=invalid_key",
+          "protocol": "https",
+          "host": ["tabit-worker", "tony-578", "workers", "dev"],
+          "path": ["catalog"],
+          "query": [
+            {
+              "key": "api_key",
+              "value": "invalid_key"
+            }
+          ]
+        },
+        "description": "Test invalid API key (should return 401)"
+      }
+    },
+    {
+      "name": "Menu Update Webhook",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Status code is 200\", function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "",
+              "pm.test(\"Response is JSON\", function () {",
+              "    pm.response.to.be.json;",
+              "});"
+            ]
+          }
         }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"type\": \"menu_update\",\n  \"timestamp\": \"2025-01-27T12:00:00Z\"\n}"
+        },
+        "url": {
+          "raw": "https://tabit-worker.tony-578.workers.dev/webhooks/tabit/menu-update",
+          "protocol": "https",
+          "host": ["tabit-worker", "tony-578", "workers", "dev"],
+          "path": ["webhooks", "tabit", "menu-update"]
+        },
+        "description": "Webhook to invalidate menu cache"
+      }
+    },
+    {
+      "name": "Order Status Webhook",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"order_id\": \"test_123\",\n  \"status\": \"SUCCESS\",\n  \"external_id\": \"ext_test_001\"\n}"
+        },
+        "url": {
+          "raw": "https://tabit-worker.tony-578.workers.dev/webhooks/tabit/order-status",
+          "protocol": "https",
+          "host": ["tabit-worker", "tony-578", "workers", "dev"],
+          "path": ["webhooks", "tabit", "order-status"]
+        },
+        "description": "Receive order status updates from Tabit"
       }
     }
   ],
   "variable": [
     {
       "key": "base_url",
-      "value": "https://tabit-worker.tony-578.workers.dev"
+      "value": "https://tabit-worker.tony-578.workers.dev",
+      "type": "string"
     },
     {
       "key": "api_key",
-      "value": "your-proxy-api-key"
-    },
-    {
-      "key": "worker_url",
-      "value": "https://tabit-worker.tony-578.workers.dev"
-    },
-    {
-      "key": "tabit_integrator_token",
-      "value": "your-integrator-token"
-    },
-    {
-      "key": "tabit_org_token",
-      "value": "your-org-token"
+      "value": "wqiuefdy8y18e",
+      "type": "string"
     }
   ]
 }
