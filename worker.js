@@ -114,11 +114,15 @@ async function handleCatalog(request, env) {
     const response = await fetchTabit('/menu', config, { method: 'GET' });
     const data = await response.json();
     
+    // Wrap in 'results' array for GHL compatibility (GHL expects results[])
+    // Tabit already returns this format, so if it's an array, wrap it
+    const wrappedData = Array.isArray(data) ? { results: data } : data;
+    
     // Store in cache
     menuCache.at = now;
-    menuCache.data = data;
+    menuCache.data = wrappedData;
     
-    return json(data, response.status);
+    return json(wrappedData, response.status);
   } catch (error) {
     log('catalog error', { error: error.message });
     return json({ error: error.message }, 500);
