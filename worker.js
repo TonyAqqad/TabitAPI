@@ -294,6 +294,21 @@ export default {
               orgLen: env.TABIT_ORG_TOKEN ? env.TABIT_ORG_TOKEN.length : 0
             });
           }
+          if (path === '/test-tabit') {
+            try {
+              const config = env.TABIT_CONFIG;
+              const response = await fetch('https://us-demo-middleware.tabit-stage.com/menu', {
+                headers: {
+                  'integrator-token': config.integratorToken,
+                  'organization-token': config.orgToken,
+                }
+              });
+              const data = await response.json();
+              return json({ success: true, status: response.status, dataType: typeof data, hasData: !!data });
+            } catch (e) {
+              return json({ success: false, error: e.message }, 500);
+            }
+          }
           if (path === '/diag' && env.DEBUG === 'true') return handleDiag(env);
           if (path === '/catalog') return handleCatalog(request, env);
           break;
