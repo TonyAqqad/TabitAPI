@@ -333,24 +333,7 @@ export default {
           if (path === '/health') return handleHealth();
           if (path === '/diag' && env.DEBUG === 'true') return handleDiag(env);
           if (path === '/catalog') return handleCatalog(request, env);
-          if (path === '/menu-summary') {
-            // Add CORS headers for GHL
-            try {
-              const result = await handleMenuSummary(request, env);
-              // Clone response and add CORS headers
-              const corsHeaders = {
-                'Access-Control-Allow-Origin': '*',
-                'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
-                'Access-Control-Allow-Headers': 'Content-Type, X-API-Key',
-              };
-              return new Response(result.body, {
-                ...result,
-                headers: { ...result.headers, ...corsHeaders },
-              });
-            } catch (error) {
-              return json({ error: error.message }, 500);
-            }
-          }
+          if (path === '/menu-summary') return handleMenuSummary(request, env);
           break;
           
         case 'POST':
