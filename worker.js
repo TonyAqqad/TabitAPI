@@ -36,7 +36,7 @@ async function fetchTabit(path, config, init = {}) {
 /**
  * Helper: Validate API key if required
  */
-function validateApiKey(request) {
+function validateApiKey(request, env) {
   const apiKey = env.TABIT_CONFIG.proxyApiKey;
   if (!apiKey) return null; // No key required
   
@@ -87,7 +87,7 @@ async function handleHealth() {
 async function handleCatalog(request, env) {
   try {
     // Check API key if required
-    const keyError = validateApiKey(request);
+    const keyError = validateApiKey(request, env);
     if (keyError) return keyError;
     
     // Check cache
@@ -100,8 +100,6 @@ async function handleCatalog(request, env) {
     // Fetch from Tabit
     log('catalog cache miss, fetching from Tabit');
     const config = env.TABIT_CONFIG;
-    log('fetching with config', { hasIntegrator: !!config?.integratorToken, hasOrg: !!config?.orgToken });
-    
     const response = await fetchTabit('/menu', config, { method: 'GET' });
     const data = await response.json();
     
@@ -111,7 +109,7 @@ async function handleCatalog(request, env) {
     
     return json(data, response.status);
   } catch (error) {
-    log('catalog error', { error: error.message, stack: error.stack });
+    log('catalog error', { error: error.message });
     return json({ error: error.message }, 500);
   }
 }
@@ -131,68 +129,73 @@ async function handleMenuUpdate() {
  * Accepts flat fields from GHL, transforms to Tabit format
  */
 async function handleOrder(request, env) {
-  // Check API key if required
-  const keyError = validateApiKey(request);
-  if (keyError) return keyError;
-  
-  let body;
   try {
-    body = await request.json();
-  } catch (e) {
-    return json({ error: 'Invalid JSON body' }, 400);
-  }
-  
-  // Validate required fields
-  const { ConsumerName, Phone, OrderType, OrderNumber, ExtId, Items } = body;
-  
-  if (!ConsumerName || !Phone || !OrderType) {
-    return json({ error: 'Missing required fields: ConsumerName, Phone, OrderType' }, 400);
-  }
-  
-  // Parse Items (can be string or array)
-  let ItemsArray;
-  try {
-    ItemsArray = typeof Items === 'string' ? JSON.parse(Items) : Items;
+    // Check API key if required
+    const keyError = validateApiKey(request, env);
+    if (keyError) return keyError;
     
-    if (!Array.isArray(ItemsArray) || ItemsArray.length === 0) {
-      return json({ error: 'Items must be a non-empty array' }, 400);
+    let body;
+    try {
+      body = await request.json();
+    } catch (e) {
+      return json({ error: 'Invalid JSON body' }, 400);
     }
-  } catch (e) {
-    return json({ error: 'Invalid Items format - must be JSON array' }, 400);
+    
+    // Validate required fields
+    const { ConsumerName, Phone, OrderType, OrderNumber, ExtId, Items } = body;
+    
+    if (!ConsumerName || !Phone || !OrderType) {
+      return json({ error: 'Missing required fields: ConsumerName, Phone, OrderType' }, 400);
+    }
+    
+    // Parse Items (can be string or array)
+    let ItemsArray;
+    try {
+      ItemsArray = typeof Items === 'string' ? JSON.parse(Items) : Items;
+      
+      if (!Array.isArray(ItemsArray) || ItemsArray.length === 0) {
+        return json({ error: 'Items must be a non-empty array' }, 400);
+      }
+    } catch (e) {
+      return json({ error: 'Invalid Items format - must be JSON array' }, 400);
+    }
+    
+    // Build Tabit payload
+    const timestamp = Date.now();
+    const tabitPayload = {
+      id: ExtId || `ext_${timestamp}`,
+      order_number: Number(OrderNumber) || Number(timestamp % 1e6),
+      consumer_name: ConsumerName,
+      consumer_phone: Phone,
+      delivery: { type: OrderType },
+      ...(body.PickupEta && { pickup_eta: body.PickupEta }),
+      items: ItemsArray,
+      sources: [{ key: 'captureclient', name: 'Capture Client' }],
+    };
+    
+    log('order received', { phone: Phone, item_count: ItemsArray.length });
+    
+    // Post to Tabit
+    const config = env.TABIT_CONFIG;
+    const response = await fetchTabit('/order', config, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(tabitPayload),
+    });
+    
+    const responseData = await response.json();
+    
+    // Log status
+    log('order forwarded to Tabit', { 
+      status: response.status, 
+      ext_id: tabitPayload.id 
+    });
+    
+    return json(responseData, response.status);
+  } catch (error) {
+    log('order error', { error: error.message });
+    return json({ error: error.message }, 500);
   }
-  
-  // Build Tabit payload
-  const timestamp = Date.now();
-  const tabitPayload = {
-    id: ExtId || `ext_${timestamp}`,
-    order_number: Number(OrderNumber) || Number(timestamp % 1e6),
-    consumer_name: ConsumerName,
-    consumer_phone: Phone,
-    delivery: { type: OrderType },
-    ...(body.PickupEta && { pickup_eta: body.PickupEta }),
-    items: ItemsArray,
-    sources: [{ key: 'captureclient', name: 'Capture Client' }],
-  };
-  
-  log('order received', { phone: Phone, item_count: ItemsArray.length });
-  
-  // Post to Tabit
-  const config = env.TABIT_CONFIG;
-  const response = await fetchTabit('/order', config, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(tabitPayload),
-  });
-  
-  const responseData = await response.json();
-  
-  // Log status
-  log('order forwarded to Tabit', { 
-    status: response.status, 
-    ext_id: tabitPayload.id 
-  });
-  
-  return json(responseData, response.status);
 }
 
 /**
@@ -285,29 +288,6 @@ export default {
       switch (method) {
         case 'GET':
           if (path === '/health') return handleHealth();
-          if (path === '/test') {
-            return json({
-              hasIntegratorToken: !!env.TABIT_INTEGRATOR_TOKEN,
-              hasOrgToken: !!env.TABIT_ORG_TOKEN,
-              integratorLen: env.TABIT_INTEGRATOR_TOKEN ? env.TABIT_INTEGRATOR_TOKEN.length : 0,
-              orgLen: env.TABIT_ORG_TOKEN ? env.TABIT_ORG_TOKEN.length : 0
-            });
-          }
-          if (path === '/test-tabit') {
-            try {
-              const config = env.TABIT_CONFIG;
-              const response = await fetch('https://us-demo-middleware.tabit-stage.com/menu', {
-                headers: {
-                  'integrator-token': config.integratorToken,
-                  'organization-token': config.orgToken,
-                }
-              });
-              const data = await response.json();
-              return json({ success: true, status: response.status, dataType: typeof data, hasData: !!data });
-            } catch (e) {
-              return json({ success: false, error: e.message }, 500);
-            }
-          }
           if (path === '/diag' && env.DEBUG === 'true') return handleDiag(env);
           if (path === '/catalog') return handleCatalog(request, env);
           break;
