@@ -87,27 +87,35 @@ async function handleHealth() {
  * Proxies menu request with caching
  */
 async function handleCatalog(request, env) {
-  // Check API key if required
-  const keyError = validateApiKey(request);
-  if (keyError) return keyError;
-  
-  // Check cache
-  const now = Date.now();
-  if (menuCache.data && (now - menuCache.at) < CACHE_TTL_MS) {
-    log('catalog cache hit');
-    return json(menuCache.data);
+  try {
+    // Check API key if required
+    const keyError = validateApiKey(request);
+    if (keyError) return keyError;
+    
+    // Check cache
+    const now = Date.now();
+    if (menuCache.data && (now - menuCache.at) < CACHE_TTL_MS) {
+      log('catalog cache hit');
+      return json(menuCache.data);
+    }
+    
+    // Fetch from Tabit
+    log('catalog cache miss, fetching from Tabit');
+    const config = env.TABIT_CONFIG;
+    log('fetching with config', { hasIntegrator: !!config?.integratorToken, hasOrg: !!config?.orgToken });
+    
+    const response = await fetchTabit('/menu', { method: 'GET' });
+    const data = await response.json();
+    
+    // Store in cache
+    menuCache.at = now;
+    menuCache.data = data;
+    
+    return json(data, response.status);
+  } catch (error) {
+    log('catalog error', { error: error.message, stack: error.stack });
+    return json({ error: error.message }, 500);
   }
-  
-  // Fetch from Tabit
-  log('catalog cache miss, fetching from Tabit');
-  const response = await fetchTabit('/menu', { method: 'GET' });
-  const data = await response.json();
-  
-  // Store in cache
-  menuCache.at = now;
-  menuCache.data = data;
-  
-  return json(data, response.status);
 }
 
 /**
