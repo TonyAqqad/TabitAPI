@@ -338,6 +338,7 @@ export default {
           
         case 'POST':
           if (path === '/order') return handleOrder(request, env);
+          if (path === '/catalog') return handleCatalog(request, env);
           if (path === '/menu-summary') return handleMenuSummary(request, env);
           if (path === '/webhooks/tabit/menu-update') return handleMenuUpdate();
           if (path === '/webhooks/tabit/order-status') return handleOrderStatus(request, env);

@@ -2,7 +2,21 @@
 
 This guide shows how to configure GHL Custom Actions using **POST requests** instead of GET, which is more compatible with GHL's testing and validation.
 
-## Custom Action Configuration
+## Available Endpoints (Both Support POST & GET)
+
+### Endpoint 1: `/menu-summary` (Lightweight)
+- **Best for**: Voice AI agents needing quick menu data
+- **Response**: ~8KB, 50 items in flat structure
+- **URL**: `https://tabit-worker.tony-578.workers.dev/menu-summary`
+
+### Endpoint 2: `/catalog` (Full Menu)
+- **Best for**: Complete menu with full details
+- **Response**: ~269KB, complete nested menu structure
+- **URL**: `https://tabit-worker.tony-578.workers.dev/catalog`
+
+---
+
+## Custom Action Configuration (Using /menu-summary)
 
 ### Action Details
 
@@ -61,9 +75,17 @@ This is a **lightweight, flat structure** perfect for Voice AI.
 1. **Click "Test Webhook"** in the Custom Action editor
 2. GHL will make a POST request to your endpoint
 3. You should see a **successful response** with the menu data
-4. The endpoint works with GET too, so you can test with:
+4. Both endpoints work with GET too, so you can test with:
    ```bash
+   # Test lightweight menu summary
    curl https://tabit-worker.tony-578.workers.dev/menu-summary
+   
+   # Test full catalog (large response)
+   curl https://tabit-worker.tony-578.workers.dev/catalog
+   
+   # Test as POST
+   curl -X POST https://tabit-worker.tony-578.workers.dev/menu-summary
+   curl -X POST https://tabit-worker.tony-578.workers.dev/catalog
    ```
 
 ---
