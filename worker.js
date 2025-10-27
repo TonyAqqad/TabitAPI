@@ -20,6 +20,16 @@ function json(data, status = 200) {
 }
 
 /**
+ * Helper: Handle HEAD requests (return headers without body)
+ */
+function handleHead(response) {
+  return new Response(null, {
+    status: response.status,
+    headers: response.headers,
+  });
+}
+
+/**
  * Helper: Fetch from Tabit API with required headers
  */
 async function fetchTabit(path, config, init = {}) {
@@ -364,24 +374,22 @@ export default {
       }
       
       // Route handlers
+      const processResponse = async (handler) => {
+        const response = await handler();
+        return method === 'HEAD' ? handleHead(response) : response;
+      };
+
       switch (method) {
         case 'GET':
         case 'HEAD':
           if (path === '/') {
             const response = await handleRoot();
-            // For HEAD requests, don't send body
-            if (method === 'HEAD') {
-              return new Response(null, { 
-                status: response.status, 
-                headers: response.headers 
-              });
-            }
-            return response;
+            return method === 'HEAD' ? handleHead(response) : response;
           }
-          if (path === '/health') return handleHealth();
-          if (path === '/diag' && env.DEBUG === 'true') return handleDiag(env);
-          if (path === '/catalog') return handleCatalog(request, env);
-          if (path === '/menu-summary') return handleMenuSummary(request, env);
+          if (path === '/health') return processResponse(handleHealth);
+          if (path === '/diag' && env.DEBUG === 'true') return processResponse(() => handleDiag(env));
+          if (path === '/catalog') return processResponse(() => handleCatalog(request, env));
+          if (path === '/menu-summary') return processResponse(() => handleMenuSummary(request, env));
           break;
           
         case 'POST':
