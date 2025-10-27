@@ -342,11 +342,35 @@ async function handleRoot() {
       'GET /health': 'Health check',
       'GET /catalog?api_key=...': 'Fetch full menu (requires API key)',
       'GET /menu-summary?api_key=...': 'Fetch menu summary (requires API key)',
+      'GET /ghl-test?api_key=...': 'GHL test endpoint (lightweight)',
       'POST /order': 'Submit order (requires API key)',
       'POST /webhooks/tabit/menu-update': 'Receive menu update webhook',
       'POST /webhooks/tabit/order-status': 'Receive order status webhook'
     }
   });
+}
+
+/**
+ * GET /ghl-test
+ * Lightweight endpoint specifically for GHL test validation
+ */
+async function handleGhlTest(request, env) {
+  try {
+    // Validate API key
+    const keyError = validateApiKey(request, env);
+    if (keyError) return keyError;
+    
+    // Return minimal success response
+    return json({
+      success: true,
+      status: 'active',
+      service: 'Tabit API Proxy',
+      message: 'This endpoint is working correctly',
+      timestamp: new Date().toISOString()
+    });
+  } catch (error) {
+    return json({ success: false, error: error.message }, 500);
+  }
 }
 
 /**
@@ -387,6 +411,7 @@ export default {
             return method === 'HEAD' ? handleHead(response) : response;
           }
           if (path === '/health') return processResponse(handleHealth);
+          if (path === '/ghl-test') return processResponse(() => handleGhlTest(request, env));
           if (path === '/diag' && env.DEBUG === 'true') return processResponse(() => handleDiag(env));
           if (path === '/catalog') return processResponse(() => handleCatalog(request, env));
           if (path === '/menu-summary') return processResponse(() => handleMenuSummary(request, env));
