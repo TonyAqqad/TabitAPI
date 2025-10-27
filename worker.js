@@ -129,21 +129,21 @@ async function handleMenuSummary(request, env) {
     const response = await fetchTabit('/menu', config, { method: 'GET' });
     const fullMenu = await response.json();
     
-    // Create condensed summary
+    // Create condensed summary (array format)
     const summary = {
       status: 'success',
-      menuId: fullMenu.menuId || 'demo',
-      categories: fullMenu.categories?.slice(0, 10).map(cat => ({
-        id: cat.id,
-        name: cat.name,
-        itemCount: cat.offers?.length || 0
-      })) || [],
-      items: fullMenu.offers?.slice(0, 20).map(offer => ({
-        id: offer.id,
-        name: offer.name,
-        categoryId: offer.category_id,
-        basePrice: offer.base_price?.amount || 0
-      })) || []
+      message: 'Menu summary',
+      data: fullMenu.slice(0, 10).map(category => ({
+        type: category.type,
+        name: category.name,
+        id: category.id,
+        items: category.children?.slice(0, 5).map(item => ({
+          id: item.id,
+          name: item.name,
+          price: item.price,
+          description: item.description?.substring(0, 100) || ''
+        })) || []
+      }))
     };
     
     return json(summary);
