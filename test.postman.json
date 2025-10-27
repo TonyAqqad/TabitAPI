@@ -269,6 +269,12 @@
       "type": "string"
     },
     {
+      "key": "custom_domain",
+      "value": "https://api.khashokausa.info",
+      "type": "string",
+      "description": "Custom domain (configure in Cloudflare first)"
+    },
+    {
       "key": "api_key",
       "value": "wqiuefdy8y18e",
       "type": "string"

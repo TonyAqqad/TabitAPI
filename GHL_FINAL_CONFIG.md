@@ -21,12 +21,17 @@ But **query parameters work perfectly**.
 Method: GET
 
 URL: 
-https://tabit-worker.tony-578.workers.dev/catalog?api_key=wqiuefdy8y18e
+https://api.khashokausa.info/catalog?api_key=wqiuefdy8y18e
 
 Headers: (LEAVE EMPTY - key is in URL!)
   (don't add any headers)
 
 Body: (Leave empty for GET)
+```
+
+**Note:** Once the custom domain `api.khashokausa.info` is configured (see `SETUP_CUSTOM_DOMAIN.md`), use the URL above. Until then, you can use:
+```
+https://tabit-worker.tony-578.workers.dev/catalog?api_key=wqiuefdy8y18e
 ```
 
 ---
