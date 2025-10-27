@@ -342,7 +342,7 @@ async function handleRoot() {
       'GET /health': 'Health check',
       'GET /catalog?api_key=...': 'Fetch full menu (requires API key)',
       'GET /menu-summary?api_key=...': 'Fetch menu summary (requires API key)',
-      'GET /ghl-test?api_key=...': 'GHL test endpoint (lightweight)',
+      'GET /ghl-test': 'GHL test endpoint (lightweight)',
       'POST /order': 'Submit order (requires API key)',
       'POST /webhooks/tabit/menu-update': 'Receive menu update webhook',
       'POST /webhooks/tabit/order-status': 'Receive order status webhook'
@@ -352,23 +352,22 @@ async function handleRoot() {
 
 /**
  * GET /ghl-test
- * Lightweight endpoint specifically for GHL test validation
+ * Ultra-lightweight endpoint specifically for GHL test button validation
+ * Returns minimal JSON with success: true for GHL's strict validation
  */
-async function handleGhlTest(request, env) {
+async function handleGHLTest(request, env) {
   try {
-    // Validate API key
+    // Validate API key if required (GHL passes it in query param)
     const keyError = validateApiKey(request, env);
     if (keyError) return keyError;
     
-    // Return minimal success response
+    // Return exactly what GHL test button expects
     return json({
       success: true,
-      status: 'active',
-      service: 'Tabit API Proxy',
-      message: 'This endpoint is working correctly',
-      timestamp: new Date().toISOString()
+      message: 'GHL test endpoint is working'
     });
   } catch (error) {
+    // GHL expects success: false for errors
     return json({ success: false, error: error.message }, 500);
   }
 }
@@ -411,7 +410,7 @@ export default {
             return method === 'HEAD' ? handleHead(response) : response;
           }
           if (path === '/health') return processResponse(handleHealth);
-          if (path === '/ghl-test') return processResponse(() => handleGhlTest(request, env));
+          if (path === '/ghl-test') return processResponse(() => handleGHLTest(request, env));
           if (path === '/diag' && env.DEBUG === 'true') return processResponse(() => handleDiag(env));
           if (path === '/catalog') return processResponse(() => handleCatalog(request, env));
           if (path === '/menu-summary') return processResponse(() => handleMenuSummary(request, env));
