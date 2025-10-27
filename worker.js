@@ -261,20 +261,20 @@ function initConfig(env) {
  */
 export default {
   async fetch(request, env, ctx) {
-    const url = new URL(request.url);
-    const path = url.pathname;
-    const method = request.method;
-    
-    // Initialize config
-    env.TABIT_CONFIG = env.TABIT_CONFIG || initConfig(env);
-    
-    // CORS preflight
-    if (method === 'OPTIONS') {
-      return cors();
-    }
-    
-    // Route handlers
     try {
+      const url = new URL(request.url);
+      const path = url.pathname;
+      const method = request.method;
+      
+      // Initialize config
+      env.TABIT_CONFIG = env.TABIT_CONFIG || initConfig(env);
+      
+      // CORS preflight
+      if (method === 'OPTIONS') {
+        return cors();
+      }
+      
+      // Route handlers
       switch (method) {
         case 'GET':
           if (path === '/health') return handleHealth();
@@ -293,8 +293,8 @@ export default {
       return json({ error: 'Not Found' }, 404);
       
     } catch (error) {
-      log('request error', { error: error.message, path });
-      return json({ error: 'Internal Server Error' }, 500);
+      log('request error', { error: error.message, stack: error.stack });
+      return json({ error: error.message }, 500);
     }
   },
 };
