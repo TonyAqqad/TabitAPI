@@ -114,9 +114,25 @@ async function handleCatalog(request, env) {
     const response = await fetchTabit('/menu', config, { method: 'GET' });
     const data = await response.json();
     
-    // Wrap in 'results' array for GHL compatibility (GHL expects results[])
-    // Tabit already returns this format, so if it's an array, wrap it
-    const wrappedData = Array.isArray(data) ? { results: data } : data;
+    log('catalog received data', { 
+      isArray: Array.isArray(data),
+      hasResults: data?.results ? 'yes' : 'no',
+      type: typeof data,
+      firstKeys: Array.isArray(data) ? data.slice(0, 1).map(k => Object.keys(k || {}).join(',')) : Object.keys(data || {})
+    });
+    
+    // If already wrapped in results, keep it; if array, wrap it
+    let wrappedData;
+    if (data?.results) {
+      // Already has results wrapper
+      wrappedData = data;
+    } else if (Array.isArray(data)) {
+      // Wrap array in results
+      wrappedData = { results: data };
+    } else {
+      // Fallback
+      wrappedData = data;
+    }
     
     // Store in cache
     menuCache.at = now;
