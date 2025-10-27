@@ -179,6 +179,84 @@ async function handleMenuUpdate() {
 }
 
 /**
+ * POST /submit-order
+ * Receives order from GHL Workflow, transforms to Tabit format
+ * This is the NEW endpoint for GHL's workflow-based approach
+ */
+async function handleSubmitOrder(request, env) {
+  try {
+    let body;
+    try {
+      body = await request.json();
+    } catch (e) {
+      return json({ success: false, error: 'Invalid JSON body' }, 400);
+    }
+    
+    // Parse GHL's order format
+    const { order_items, order_type, customer_name, customer_phone, delivery_address, delivery_notes, order_total } = body;
+    
+    if (!order_items || !order_type || !customer_name || !customer_phone) {
+      return json({ success: false, error: 'Missing required fields' }, 400);
+    }
+    
+    // Parse order_items string into Tabit format
+    // Format: "ItemName|Size|Qty|Mods;ItemName2|Size|Qty|Mods"
+    const items = order_items.split(';').map(item => {
+      const [name, size, qty, mods] = item.split('|');
+      // TODO: Map to actual Tabit offer IDs (you'll need a mapping)
+      // For now, return placeholder structure
+      return {
+        id: `item_${Date.now()}`, // Placeholder - needs real offer ID
+        name: name.trim(),
+        size: size?.trim() || '',
+        quantity: parseInt(qty) || 1,
+        notes: mods?.trim() || ''
+      };
+    });
+    
+    // Build Tabit payload
+    const timestamp = Date.now();
+    const tabitPayload = {
+      id: `ghl_${timestamp}`,
+      order_number: Math.floor(timestamp / 1000),
+      consumer_name: customer_name,
+      consumer_phone: customer_phone,
+      delivery: { type: order_type.toLowerCase() },
+      items: items,
+      sources: [{ key: 'captureclient', name: 'Capture Client' }],
+      ...(delivery_address && { delivery_address: delivery_address }),
+      ...(delivery_notes && { delivery_notes: delivery_notes })
+    };
+    
+    log('submit-order received', { customer: customer_name, item_count: items.length });
+    
+    // Post to Tabit
+    const config = env.TABIT_CONFIG;
+    const response = await fetchTabit('/order', config, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(tabitPayload),
+    });
+    
+    const responseData = await response.json();
+    
+    log('order forwarded to Tabit', { status: response.status });
+    
+    // Return GHL-friendly response
+    return json({
+      success: response.ok,
+      order_id: tabitPayload.id,
+      status: response.ok ? 'submitted' : 'failed',
+      message: response.ok ? 'Order submitted successfully' : 'Order submission failed'
+    }, response.status);
+    
+  } catch (error) {
+    log('submit-order error', { error: error.message });
+    return json({ success: false, error: error.message }, 500);
+  }
+}
+
+/**
  * POST /order
  * Accepts flat fields from GHL, transforms to Tabit format
  */
@@ -330,10 +408,11 @@ async function handleRoot() {
     status: 'active',
     endpoints: {
       'GET /health': 'Health check',
+      'GET /ghl-test': 'GHL test endpoint (no API key)',
       'GET /catalog?api_key=...': 'Fetch full menu (requires API key)',
       'GET /menu-summary?api_key=...': 'Fetch menu summary (requires API key)',
-      'GET /ghl-test': 'GHL test endpoint',
-      'POST /order': 'Submit order (requires API key)',
+      'POST /submit-order': 'Submit order from GHL Workflow (no API key)',
+      'POST /order': 'Submit order with API key',
       'POST /webhooks/tabit/menu-update': 'Receive menu update webhook',
       'POST /webhooks/tabit/order-status': 'Receive order status webhook'
     }
@@ -397,6 +476,7 @@ export default {
           
         case 'POST':
           if (path === '/') return json({ error: 'Root path only accepts GET' }, 405);
+          if (path === '/submit-order') return handleSubmitOrder(request, env);
           if (path === '/order') return handleOrder(request, env);
           if (path === '/catalog') return handleCatalog(request, env);
           if (path === '/menu-summary') return handleMenuSummary(request, env);
