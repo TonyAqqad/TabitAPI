@@ -10,8 +10,8 @@
         "method": "GET",
         "header": [],
         "url": {
-          "raw": "{{base_url}}/health",
-          "host": ["{{base_url}}"],
+          "raw": "https://tabit-worker.tony-578.workers.dev/health",
+          "host": ["tabit-worker.tony-578.workers.dev"],
           "path": ["health"]
         }
       }
@@ -27,8 +27,8 @@
           }
         ],
         "url": {
-          "raw": "{{base_url}}/catalog",
-          "host": ["{{base_url}}"],
+          "raw": "https://tabit-worker.tony-578.workers.dev/catalog",
+          "host": ["tabit-worker.tony-578.workers.dev"],
           "path": ["catalog"]
         }
       }
@@ -52,8 +52,8 @@
           "raw": "{\n  \"ConsumerName\": \"John Doe\",\n  \"Phone\": \"+15551234567\",\n  \"OrderType\": \"takeaway\",\n  \"PickupEta\": \"2025-11-05T17:15:00Z\",\n  \"OrderNumber\": 12345,\n  \"ExtId\": \"ext_test_001\",\n  \"Items\": \"[{\\\"id\\\":\\\"2361\\\",\\\"name\\\":\\\"6 Chicken Wings\\\",\\\"count\\\":1,\\\"options\\\":[{\\\"id\\\":\\\"68e7b82e893d90398a570415\\\",\\\"name\\\":\\\"Serving/Prep\\\",\\\"value_id\\\":\\\"68e7b82e893d90398a570417\\\",\\\"value\\\":\\\"Mix\\\",\\\"count\\\":1},{\\\"id\\\":\\\"68e7b82e893d90398a570419\\\",\\\"name\\\":\\\"Dip\\\",\\\"value_id\\\":\\\"68e7b82e893d90398a57041a\\\",\\\"value\\\":\\\"Ranch Dip\\\",\\\"count\\\":1}]}]\"\n}"
         },
         "url": {
-          "raw": "{{base_url}}/order",
-          "host": ["{{base_url}}"],
+          "raw": "https://tabit-worker.tony-578.workers.dev/order",
+          "host": ["tabit-worker.tony-578.workers.dev"],
           "path": ["order"]
         }
       }
@@ -68,8 +68,8 @@
           "raw": "{\n  \"status\": \"updated\"\n}"
         },
         "url": {
-          "raw": "{{base_url}}/webhooks/tabit/menu-update",
-          "host": ["{{base_url}}"],
+          "raw": "https://tabit-worker.tony-578.workers.dev/webhooks/tabit/menu-update",
+          "host": ["tabit-worker.tony-578.workers.dev"],
           "path": ["webhooks", "tabit", "menu-update"]
         }
       }
@@ -84,8 +84,8 @@
           "raw": "{\n  \"status\": \"confirmed\",\n  \"external_id\": \"ext_test_001\",\n  \"order_number\": 12345\n}"
         },
         "url": {
-          "raw": "{{base_url}}/webhooks/tabit/order-status",
-          "host": ["{{base_url}}"],
+          "raw": "https://tabit-worker.tony-578.workers.dev/webhooks/tabit/order-status",
+          "host": ["tabit-worker.tony-578.workers.dev"],
           "path": ["webhooks", "tabit", "order-status"]
         }
       }
@@ -96,8 +96,8 @@
         "method": "GET",
         "header": [],
         "url": {
-          "raw": "{{base_url}}/diag",
-          "host": ["{{base_url}}"],
+          "raw": "https://tabit-worker.tony-578.workers.dev/diag",
+          "host": ["tabit-worker.tony-578.workers.dev"],
           "path": ["diag"]
         }
       }
@@ -122,7 +122,7 @@
         ],
         "body": {
           "mode": "raw",
-          "raw": "{\n  \"callbackWebhook\": \"{{worker_url}}/webhooks/tabit/order-status\",\n  \"menuWebhook\": \"{{worker_url}}/webhooks/tabit/menu-update\"\n}"
+          "raw": "{\n  \"callbackWebhook\": \"https://tabit-worker.tony-578.workers.dev/webhooks/tabit/order-status\",\n  \"menuWebhook\": \"https://tabit-worker.tony-578.workers.dev/webhooks/tabit/menu-update\"\n}"
         },
         "url": {
           "raw": "https://us-demo-middleware.tabit-stage.com/third-party/me",
@@ -136,7 +136,7 @@
   "variable": [
     {
       "key": "base_url",
-      "value": "https://your-worker.workers.dev"
+      "value": "https://tabit-worker.tony-578.workers.dev"
     },
     {
       "key": "api_key",
@@ -144,7 +144,7 @@
     },
     {
       "key": "worker_url",
-      "value": "https://your-worker.workers.dev"
+      "value": "https://tabit-worker.tony-578.workers.dev"
     },
     {
       "key": "tabit_integrator_token",

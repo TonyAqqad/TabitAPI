@@ -96,10 +96,10 @@ Import `test.postman.json` into Postman or use curl:
 
 ```bash
 # Health
-curl https://your-worker.workers.dev/health
+curl https://tabit-worker.tony-578.workers.dev/health
 
 # Catalog
-curl https://your-worker.workers.dev/catalog \
+curl https://tabit-worker.tony-578.workers.dev/catalog \
   -H "X-API-Key: your-key"
 ```
 

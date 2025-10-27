@@ -55,8 +55,8 @@ $headers = @{
 }
 
 $body = @{
-    callbackWebhook = "https://your-worker.workers.dev/webhooks/tabit/order-status"
-    menuWebhook = "https://your-worker.workers.dev/webhooks/tabit/menu-update"
+    callbackWebhook = "https://tabit-worker.tony-578.workers.dev/webhooks/tabit/order-status"
+    menuWebhook = "https://tabit-worker.tony-578.workers.dev/webhooks/tabit/menu-update"
 } | ConvertTo-Json
 
 Invoke-RestMethod -Uri "https://us-demo-middleware.tabit-stage.com/third-party/me" `
@@ -70,8 +70,8 @@ curl -X PUT "https://us-demo-middleware.tabit-stage.com/third-party/me" \
   -H "organization-token: <YOUR_TOKEN>" \
   -H "Content-Type: application/json" \
   -d '{
-    "callbackWebhook": "https://your-worker.workers.dev/webhooks/tabit/order-status",
-    "menuWebhook": "https://your-worker.workers.dev/webhooks/tabit/menu-update"
+    "callbackWebhook": "https://tabit-worker.tony-578.workers.dev/webhooks/tabit/order-status",
+    "menuWebhook": "https://tabit-worker.tony-578.workers.dev/webhooks/tabit/menu-update"
   }'
 ```
 
@@ -79,10 +79,10 @@ curl -X PUT "https://us-demo-middleware.tabit-stage.com/third-party/me" \
 
 ```bash
 # Health check
-curl https://your-worker.workers.dev/health
+curl https://tabit-worker.tony-578.workers.dev/health
 
 # Get catalog (if using API key)
-curl https://your-worker.workers.dev/catalog \
+curl https://tabit-worker.tony-578.workers.dev/catalog \
   -H "X-API-Key: your-key"
 ```
 
@@ -94,7 +94,7 @@ curl https://your-worker.workers.dev/catalog \
 2. Create custom action
 3. Configure:
    - **Method**: `GET`
-   - **URL**: `https://your-worker.workers.dev/catalog`
+   - **URL**: `https://tabit-worker.tony-578.workers.dev/catalog`
    - **Headers**: 
      - `X-API-Key`: `<your-proxy-api-key>` (if configured)
    - **Pre-execute message**: "Got it—checking the menu."
@@ -104,7 +104,7 @@ curl https://your-worker.workers.dev/catalog \
 1. Create custom action
 2. Configure:
    - **Method**: `POST`
-   - **URL**: `https://your-worker.workers.dev/order`
+   - **URL**: `https://tabit-worker.tony-578.workers.dev/order`
    - **Headers**: 
      - `Content-Type`: `application/json`
      - `X-API-Key`: `<your-proxy-api-key>` (if configured)
@@ -143,7 +143,7 @@ wrangler secret put DEBUG
 # Enter: true
 
 # Then test
-curl https://your-worker.workers.dev/diag
+curl https://tabit-worker.tony-578.workers.dev/diag
 ```
 
 ### Common Issues

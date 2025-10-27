@@ -92,7 +92,7 @@ wrangler secret put FORWARD_STATUS_URL  # optional
 ### A) Fetch Menu (via Proxy)
 
 **Method**: `GET`  
-**URL**: `https://<your-worker>.workers.dev/catalog`  
+**URL**: `https://tabit-worker.tony-578.workers.dev/catalog`  
 **Headers**:
 ```
 X-API-Key: <PROXY_API_KEY>
@@ -106,7 +106,7 @@ Accept: application/json
 ### B) Submit Order (via Proxy)
 
 **Method**: `POST`  
-**URL**: `https://<your-worker>.workers.dev/order`  
+**URL**: `https://tabit-worker.tony-578.workers.dev/order`  
 **Headers**:
 ```
 Content-Type: application/json
@@ -167,8 +167,8 @@ Content-Type: application/json
 **Body**:
 ```json
 {
-  "callbackWebhook": "https://<your-worker>.workers.dev/webhooks/tabit/order-status",
-  "menuWebhook": "https://<your-worker>.workers.dev/webhooks/tabit/menu-update"
+  "callbackWebhook": "https://tabit-worker.tony-578.workers.dev/webhooks/tabit/order-status",
+  "menuWebhook": "https://tabit-worker.tony-578.workers.dev/webhooks/tabit/menu-update"
 }
 ```
 
@@ -182,8 +182,8 @@ $headers = @{
 }
 
 $body = @{
-    callbackWebhook = "https://your-worker.workers.dev/webhooks/tabit/order-status"
-    menuWebhook = "https://your-worker.workers.dev/webhooks/tabit/menu-update"
+    callbackWebhook = "https://tabit-worker.tony-578.workers.dev/webhooks/tabit/order-status"
+    menuWebhook = "https://tabit-worker.tony-578.workers.dev/webhooks/tabit/menu-update"
 } | ConvertTo-Json
 
 Invoke-RestMethod -Uri "https://us-demo-middleware.tabit-stage.com/third-party/me" -Method PUT -Headers $headers -Body $body
@@ -197,8 +197,8 @@ curl -X PUT "https://us-demo-middleware.tabit-stage.com/third-party/me" \
   -H "organization-token: <TABIT_ORG_TOKEN>" \
   -H "Content-Type: application/json" \
   -d '{
-    "callbackWebhook": "https://your-worker.workers.dev/webhooks/tabit/order-status",
-    "menuWebhook": "https://your-worker.workers.dev/webhooks/tabit/menu-update"
+    "callbackWebhook": "https://tabit-worker.tony-578.workers.dev/webhooks/tabit/order-status",
+    "menuWebhook": "https://tabit-worker.tony-578.workers.dev/webhooks/tabit/menu-update"
   }'
 ```
 
@@ -214,8 +214,8 @@ curl -X PUT "https://us-demo-middleware.tabit-stage.com/third-party/me" \
 5. Body (raw JSON):
    ```json
    {
-     "callbackWebhook": "https://your-worker.workers.dev/webhooks/tabit/order-status",
-     "menuWebhook": "https://your-worker.workers.dev/webhooks/tabit/menu-update"
+     "callbackWebhook": "https://tabit-worker.tony-578.workers.dev/webhooks/tabit/order-status",
+     "menuWebhook": "https://tabit-worker.tony-578.workers.dev/webhooks/tabit/menu-update"
    }
    ```
 

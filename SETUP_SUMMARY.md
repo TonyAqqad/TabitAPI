@@ -73,8 +73,8 @@ curl -X PUT "https://us-demo-middleware.tabit-stage.com/third-party/me" \
   -H "organization-token: 217f096507444e7cbbbf9a40ed61e5f6" \
   -H "Content-Type: application/json" \
   -d '{
-    "callbackWebhook": "https://your-worker.workers.dev/webhooks/tabit/order-status",
-    "menuWebhook": "https://your-worker.workers.dev/webhooks/tabit/menu-update"
+    "callbackWebhook": "https://tabit-worker.tony-578.workers.dev/webhooks/tabit/order-status",
+    "menuWebhook": "https://tabit-worker.tony-578.workers.dev/webhooks/tabit/menu-update"
   }'
 ```
 
@@ -82,10 +82,10 @@ curl -X PUT "https://us-demo-middleware.tabit-stage.com/third-party/me" \
 
 ```bash
 # Health check
-curl https://your-worker.workers.dev/health
+curl https://tabit-worker.tony-578.workers.dev/health
 
 # Get catalog
-curl https://your-worker.workers.dev/catalog \
+curl https://tabit-worker.tony-578.workers.dev/catalog \
   -H "X-API-Key: your-api-key"
 ```
 
