@@ -1,4 +1,4 @@
-name = "tabit-api-proxy"
+name = "tabit-worker"
 main = "worker.js"
 compatibility_date = "2024-01-01"
 
@@ -6,10 +6,10 @@ compatibility_date = "2024-01-01"
 # Use: wrangler secret put <NAME>
 
 [env.production]
-name = "tabit-api-proxy"
+name = "tabit-worker"
 
 [env.staging]
-name = "tabit-api-proxy-staging"
+name = "tabit-worker-staging"
 
 # Routes match all paths
 # To restrict, use: routes = [{ pattern = "/api/*", zone_name = "example.com" }]
