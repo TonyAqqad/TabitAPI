@@ -1,0 +1,158 @@
+{
+  "info": {
+    "name": "Tabit API Proxy",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Health Check",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/health",
+          "host": ["{{base_url}}"],
+          "path": ["health"]
+        }
+      }
+    },
+    {
+      "name": "Get Catalog",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "X-API-Key",
+            "value": "{{api_key}}"
+          }
+        ],
+        "url": {
+          "raw": "{{base_url}}/catalog",
+          "host": ["{{base_url}}"],
+          "path": ["catalog"]
+        }
+      }
+    },
+    {
+      "name": "Submit Order",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "X-API-Key",
+            "value": "{{api_key}}"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"ConsumerName\": \"John Doe\",\n  \"Phone\": \"+15551234567\",\n  \"OrderType\": \"takeaway\",\n  \"PickupEta\": \"2025-11-05T17:15:00Z\",\n  \"OrderNumber\": 12345,\n  \"ExtId\": \"ext_test_001\",\n  \"Items\": \"[{\\\"id\\\":\\\"2361\\\",\\\"name\\\":\\\"6 Chicken Wings\\\",\\\"count\\\":1,\\\"options\\\":[{\\\"id\\\":\\\"68e7b82e893d90398a570415\\\",\\\"name\\\":\\\"Serving/Prep\\\",\\\"value_id\\\":\\\"68e7b82e893d90398a570417\\\",\\\"value\\\":\\\"Mix\\\",\\\"count\\\":1},{\\\"id\\\":\\\"68e7b82e893d90398a570419\\\",\\\"name\\\":\\\"Dip\\\",\\\"value_id\\\":\\\"68e7b82e893d90398a57041a\\\",\\\"value\\\":\\\"Ranch Dip\\\",\\\"count\\\":1}]}]\"\n}"
+        },
+        "url": {
+          "raw": "{{base_url}}/order",
+          "host": ["{{base_url}}"],
+          "path": ["order"]
+        }
+      }
+    },
+    {
+      "name": "Menu Update Webhook",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"status\": \"updated\"\n}"
+        },
+        "url": {
+          "raw": "{{base_url}}/webhooks/tabit/menu-update",
+          "host": ["{{base_url}}"],
+          "path": ["webhooks", "tabit", "menu-update"]
+        }
+      }
+    },
+    {
+      "name": "Order Status Webhook",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"status\": \"confirmed\",\n  \"external_id\": \"ext_test_001\",\n  \"order_number\": 12345\n}"
+        },
+        "url": {
+          "raw": "{{base_url}}/webhooks/tabit/order-status",
+          "host": ["{{base_url}}"],
+          "path": ["webhooks", "tabit", "order-status"]
+        }
+      }
+    },
+    {
+      "name": "Diagnostic (DEBUG only)",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/diag",
+          "host": ["{{base_url}}"],
+          "path": ["diag"]
+        }
+      }
+    },
+    {
+      "name": "Register Tabit Webhooks",
+      "request": {
+        "method": "PUT",
+        "header": [
+          {
+            "key": "integrator-token",
+            "value": "{{tabit_integrator_token}}"
+          },
+          {
+            "key": "organization-token",
+            "value": "{{tabit_org_token}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"callbackWebhook\": \"{{worker_url}}/webhooks/tabit/order-status\",\n  \"menuWebhook\": \"{{worker_url}}/webhooks/tabit/menu-update\"\n}"
+        },
+        "url": {
+          "raw": "https://us-demo-middleware.tabit-stage.com/third-party/me",
+          "protocol": "https",
+          "host": ["us-demo-middleware", "tabit-stage", "com"],
+          "path": ["third-party", "me"]
+        }
+      }
+    }
+  ],
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "https://your-worker.workers.dev"
+    },
+    {
+      "key": "api_key",
+      "value": "your-proxy-api-key"
+    },
+    {
+      "key": "worker_url",
+      "value": "https://your-worker.workers.dev"
+    },
+    {
+      "key": "tabit_integrator_token",
+      "value": "your-integrator-token"
+    },
+    {
+      "key": "tabit_org_token",
+      "value": "your-org-token"
+    }
+  ]
+}

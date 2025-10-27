@@ -1,0 +1,29 @@
+{
+  "name": "tabit-api-proxy",
+  "version": "1.0.0",
+  "description": "Cloudflare Worker that proxies requests from GHL Voice AI to Tabit demo middleware",
+  "main": "worker.js",
+  "scripts": {
+    "deploy": "wrangler deploy",
+    "deploy:staging": "wrangler deploy --env staging",
+    "dev": "wrangler dev",
+    "tail": "wrangler tail",
+    "secret:integrator": "wrangler secret put TABIT_INTEGRATOR_TOKEN",
+    "secret:org": "wrangler secret put TABIT_ORG_TOKEN",
+    "secret:apikey": "wrangler secret put PROXY_API_KEY",
+    "secret:forward": "wrangler secret put FORWARD_STATUS_URL",
+    "secret:debug": "wrangler secret put DEBUG"
+  },
+  "keywords": [
+    "cloudflare",
+    "worker",
+    "tabit",
+    "ghl",
+    "voice-ai"
+  ],
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "wrangler": "^3.0.0"
+  }
+}
