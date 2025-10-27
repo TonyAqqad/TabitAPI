@@ -35,14 +35,24 @@ async function fetchTabit(path, config, init = {}) {
 
 /**
  * Helper: Validate API key if required
+ * Accepts key from header (X-API-Key) OR query parameter (?api_key=)
+ * for maximum compatibility with different systems
  */
 function validateApiKey(request, env) {
   const apiKey = env.TABIT_CONFIG.proxyApiKey;
   if (!apiKey) return null; // No key required
   
-  const providedKey = request.headers.get('X-API-Key');
+  // Check header first
+  let providedKey = request.headers.get('X-API-Key');
+  
+  // If not in header, check query parameter
+  if (!providedKey) {
+    const url = new URL(request.url);
+    providedKey = url.searchParams.get('api_key');
+  }
+  
   if (providedKey !== apiKey) {
-    return json({ error: 'Invalid or missing X-API-Key header' }, 401);
+    return json({ error: 'Invalid or missing API key. Provide X-API-Key header or ?api_key= query parameter' }, 401);
   }
   return null;
 }
