@@ -115,6 +115,45 @@ async function handleCatalog(request, env) {
 }
 
 /**
+ * GET /menu-summary
+ * Lightweight menu summary for GHL (much smaller response)
+ */
+async function handleMenuSummary(request, env) {
+  try {
+    // Check API key if required
+    const keyError = validateApiKey(request, env);
+    if (keyError) return keyError;
+    
+    // Fetch full menu
+    const config = env.TABIT_CONFIG;
+    const response = await fetchTabit('/menu', config, { method: 'GET' });
+    const fullMenu = await response.json();
+    
+    // Create condensed summary
+    const summary = {
+      status: 'success',
+      menuId: fullMenu.menuId || 'demo',
+      categories: fullMenu.categories?.slice(0, 10).map(cat => ({
+        id: cat.id,
+        name: cat.name,
+        itemCount: cat.offers?.length || 0
+      })) || [],
+      items: fullMenu.offers?.slice(0, 20).map(offer => ({
+        id: offer.id,
+        name: offer.name,
+        categoryId: offer.category_id,
+        basePrice: offer.base_price?.amount || 0
+      })) || []
+    };
+    
+    return json(summary);
+  } catch (error) {
+    log('menu-summary error', { error: error.message });
+    return json({ error: error.message }, 500);
+  }
+}
+
+/**
  * POST /webhooks/tabit/menu-update
  * Invalidates menu cache
  */
@@ -290,6 +329,7 @@ export default {
           if (path === '/health') return handleHealth();
           if (path === '/diag' && env.DEBUG === 'true') return handleDiag(env);
           if (path === '/catalog') return handleCatalog(request, env);
+          if (path === '/menu-summary') return handleMenuSummary(request, env);
           break;
           
         case 'POST':
