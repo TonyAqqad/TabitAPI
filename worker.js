@@ -20,16 +20,6 @@ function json(data, status = 200) {
 }
 
 /**
- * Helper: Handle HEAD requests (return headers without body)
- */
-function handleHead(response) {
-  return new Response(null, {
-    status: response.status,
-    headers: response.headers,
-  });
-}
-
-/**
  * Helper: Fetch from Tabit API with required headers
  */
 async function fetchTabit(path, config, init = {}) {
@@ -342,7 +332,7 @@ async function handleRoot() {
       'GET /health': 'Health check',
       'GET /catalog?api_key=...': 'Fetch full menu (requires API key)',
       'GET /menu-summary?api_key=...': 'Fetch menu summary (requires API key)',
-      'GET /ghl-test': 'GHL test endpoint (lightweight)',
+      'GET /ghl-test': 'GHL test endpoint',
       'POST /order': 'Submit order (requires API key)',
       'POST /webhooks/tabit/menu-update': 'Receive menu update webhook',
       'POST /webhooks/tabit/order-status': 'Receive order status webhook'
@@ -352,24 +342,11 @@ async function handleRoot() {
 
 /**
  * GET /ghl-test
- * Ultra-lightweight endpoint specifically for GHL test button validation
- * Returns minimal JSON with success: true for GHL's strict validation
+ * GHL test button validation - NO API KEY REQUIRED
+ * Must return: {"success": true}
  */
-async function handleGHLTest(request, env) {
-  try {
-    // Validate API key if required (GHL passes it in query param)
-    const keyError = validateApiKey(request, env);
-    if (keyError) return keyError;
-    
-    // Return exactly what GHL test button expects
-    return json({
-      success: true,
-      message: 'GHL test endpoint is working'
-    });
-  } catch (error) {
-    // GHL expects success: false for errors
-    return json({ success: false, error: error.message }, 500);
-  }
+async function handleGHLTest() {
+  return json({ success: true });
 }
 
 /**
@@ -397,23 +374,25 @@ export default {
       }
       
       // Route handlers
-      const processResponse = async (handler) => {
-        const response = await handler();
-        return method === 'HEAD' ? handleHead(response) : response;
-      };
-
       switch (method) {
         case 'GET':
         case 'HEAD':
           if (path === '/') {
             const response = await handleRoot();
-            return method === 'HEAD' ? handleHead(response) : response;
+            // For HEAD requests, don't send body
+            if (method === 'HEAD') {
+              return new Response(null, { 
+                status: response.status, 
+                headers: response.headers 
+              });
+            }
+            return response;
           }
-          if (path === '/health') return processResponse(handleHealth);
-          if (path === '/ghl-test') return processResponse(() => handleGHLTest(request, env));
-          if (path === '/diag' && env.DEBUG === 'true') return processResponse(() => handleDiag(env));
-          if (path === '/catalog') return processResponse(() => handleCatalog(request, env));
-          if (path === '/menu-summary') return processResponse(() => handleMenuSummary(request, env));
+          if (path === '/health') return handleHealth();
+          if (path === '/ghl-test') return handleGHLTest();
+          if (path === '/diag' && env.DEBUG === 'true') return handleDiag(env);
+          if (path === '/catalog') return handleCatalog(request, env);
+          if (path === '/menu-summary') return handleMenuSummary(request, env);
           break;
           
         case 'POST':
