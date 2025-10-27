@@ -42,17 +42,18 @@ function validateApiKey(request, env) {
   const apiKey = env.TABIT_CONFIG.proxyApiKey;
   if (!apiKey) return null; // No key required
   
-  // Check header first
-  let providedKey = request.headers.get('X-API-Key');
+  // GHL Voice AI drops custom headers! Use query parameter instead.
+  const url = new URL(request.url);
+  let providedKey = url.searchParams.get('api_key');
   
-  // If not in header, check query parameter
+  // Check query parameter first (GHL-friendly)
   if (!providedKey) {
-    const url = new URL(request.url);
-    providedKey = url.searchParams.get('api_key');
+    // Fallback to header for non-GHL clients
+    providedKey = request.headers.get('X-API-Key');
   }
   
   if (providedKey !== apiKey) {
-    return json({ error: 'Invalid or missing API key. Provide X-API-Key header or ?api_key= query parameter' }, 401);
+    return json({ error: 'Invalid or missing API key. Use ?api_key=YOUR_KEY query parameter' }, 401);
   }
   return null;
 }
