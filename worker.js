@@ -258,6 +258,122 @@ async function handleOrder(request, env) {
 }
 
 /**
+ * POST /submit-order
+ * Handles orders from GHL Workflows (no API key required)
+ */
+async function handleGHLOrder(request, env) {
+  try {
+    const ghlOrder = await request.json();
+    log('Received order from GHL', { customer: ghlOrder.customer_name });
+    
+    // Generate unique order ID
+    const orderId = `ORD_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+    const orderNumber = Math.floor(Date.now() / 1000);
+    
+    // Parse order items from GHL format: "ItemName|Size|Qty|Mods"
+    const items = parseGHLOrderItems(ghlOrder.order_items);
+    
+    // Calculate total
+    const subtotal = calculateOrderTotal(items);
+    
+    // Build Tabit order payload
+    const tabitOrder = {
+      id: orderId,
+      order_number: orderNumber,
+      consumer_name: ghlOrder.customer_name || "Guest",
+      consumer_phone: ghlOrder.customer_phone,
+      delivery: {
+        type: ghlOrder.order_type?.toLowerCase() || "takeaway"
+      },
+      items: items,
+      sources: [{ key: 'captureclient', name: 'Capture Client' }]
+    };
+    
+    // Add delivery address if provided
+    if (ghlOrder.delivery_address) {
+      tabitOrder.delivery_address = ghlOrder.delivery_address;
+    }
+    
+    log('Submitting to Tabit', { order_id: orderId, item_count: items.length });
+    
+    // Get config from environment
+    const config = env.TABIT_CONFIG;
+    
+    // Submit to Tabit
+    const tabitResponse = await fetchTabit('/order', config, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(tabitOrder)
+    });
+    
+    const tabitResult = await tabitResponse.json();
+    log('Tabit response', { status: tabitResponse.status });
+    
+    // Return formatted response to GHL
+    return json({
+      success: tabitResponse.ok,
+      order_id: orderId,
+      order_number: orderNumber,
+      order_total: subtotal,
+      status: tabitResponse.ok ? 'submitted' : 'failed',
+      message: tabitResponse.ok ? 
+        'Order submitted successfully' : 
+        'Order submission failed'
+    }, tabitResponse.ok ? 200 : 500);
+  } catch (error) {
+    log('GHL order error', { error: error.message });
+    return json({ 
+      success: false,
+      error: error.message 
+    }, 500);
+  }
+}
+
+/**
+ * Parse GHL order items string into array
+ * Format: "ItemName|Size|Qty|Mods;ItemName2|Size|Qty|Mods"
+ */
+function parseGHLOrderItems(orderItemsString) {
+  if (!orderItemsString) return [];
+  
+  const items = orderItemsString.split(';').filter(item => item.trim());
+  
+  return items.map(itemString => {
+    const parts = itemString.split('|').map(s => s?.trim());
+    const [name, size, qty, mods] = parts;
+    
+    return {
+      id: `item_${Date.now()}_${Math.random().toString(36).substr(2, 5)}`,
+      name: name || "Unknown Item",
+      size: size || "Regular",
+      quantity: parseInt(qty) || 1,
+      notes: mods || ""
+    };
+  });
+}
+
+/**
+ * Calculate order total from items
+ * TODO: Replace with actual menu price lookup
+ */
+function calculateOrderTotal(items) {
+  const priceMap = {
+    "6 Chicken Wings": 13.95,
+    "8 Chicken Tenders": 20.95,
+    "10 Fried Shrimp": 13.95,
+    "Small Onion Rings": 8.95
+  };
+  
+  let total = 0;
+  for (const item of items) {
+    const price = priceMap[item.name] || 10.00;
+    total += price * item.quantity;
+  }
+  
+  return total;
+}
+
+/**
  * POST /webhooks/tabit/order-status
  * Receives status updates from Tabit, optionally forwards them
  */
@@ -339,6 +455,7 @@ async function handleRoot() {
       'GET /menu-summary?api_key=...': 'Fetch menu summary (requires API key)',
       'GET /ghl-test': 'GHL test endpoint',
       'POST /order': 'Submit order (requires API key)',
+      'POST /submit-order': 'Submit order from GHL Workflow (no API key)',
       'POST /webhooks/tabit/menu-update': 'Receive menu update webhook',
       'POST /webhooks/tabit/order-status': 'Receive order status webhook'
     }
@@ -403,6 +520,7 @@ export default {
         case 'POST':
           if (path === '/') return json({ error: 'Root path only accepts GET' }, 405);
           if (path === '/order') return handleOrder(request, env);
+          if (path === '/submit-order') return handleGHLOrder(request, env);
           if (path === '/catalog') return handleCatalog(request, env);
           if (path === '/menu-summary') return handleMenuSummary(request, env);
           if (path === '/webhooks/tabit/menu-update') return handleMenuUpdate();
