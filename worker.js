@@ -529,7 +529,7 @@ export default {
       }
       
       // Not found
-      return json({ error: 'Not Found', availableEndpoints: '/health, /catalog, /menu-summary, /order' }, 404);
+      return json({ error: 'Not Found', availableEndpoints: '/health, /catalog, /menu-summary, /order, /submit-order' }, 404);
       
     } catch (error) {
       log('request error', { error: error.message, stack: error.stack });
