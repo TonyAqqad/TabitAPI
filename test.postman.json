@@ -1,7 +1,7 @@
 {
   "info": {
-    "name": "Tabit API Proxy - GHL Integration",
-    "description": "Test collection for Cloudflare Worker proxy with Tabit API integration",
+    "name": "Tabit API Proxy - Complete Collection",
+    "description": "Complete test collection for all Cloudflare Worker endpoints",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "item": [
@@ -11,132 +11,86 @@
         "method": "GET",
         "header": [],
         "url": {
-          "raw": "https://tabit-worker.tony-578.workers.dev/health",
+          "raw": "https://api.khashokausa.info/health",
           "protocol": "https",
-          "host": ["tabit-worker", "tony-578", "workers", "dev"],
+          "host": ["api", "khashokausa", "info"],
           "path": ["health"]
         },
         "description": "Check if worker is online"
       }
     },
     {
-      "name": "Get Full Catalog (Query Param)",
+      "name": "Root Endpoint",
       "request": {
         "method": "GET",
         "header": [],
         "url": {
-          "raw": "https://tabit-worker.tony-578.workers.dev/catalog?api_key=wqiuefdy8y18e",
+          "raw": "https://api.khashokausa.info/",
           "protocol": "https",
-          "host": ["tabit-worker", "tony-578", "workers", "dev"],
+          "host": ["api", "khashokausa", "info"],
+          "path": [""]
+        },
+        "description": "Get list of available endpoints"
+      }
+    },
+    {
+      "name": "GHL Test Endpoint",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "https://api.khashokausa.info/ghl-test",
+          "protocol": "https",
+          "host": ["api", "khashokausa", "info"],
+          "path": ["ghl-test"]
+        },
+        "description": "Test endpoint that returns {success: true} for GHL validation"
+      }
+    },
+    {
+      "name": "Get Full Catalog (with API Key)",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "https://api.khashokausa.info/catalog?api_key=wqiuefdy8y18e",
+          "protocol": "https",
+          "host": ["api", "khashokausa", "info"],
           "path": ["catalog"],
           "query": [
             {
               "key": "api_key",
               "value": "wqiuefdy8y18e",
-              "description": "API Key as query parameter (GHL-compatible)"
+              "description": "API Key as query parameter"
             }
           ]
         },
-        "description": "Fetch complete menu catalog with API key in query parameter (RECOMMENDED for GHL)"
+        "description": "Fetch complete menu catalog from Tabit (cached 10 minutes)"
       }
     },
     {
-      "name": "Get Catalog (POST with Query)",
-      "request": {
-        "method": "POST",
-        "header": [
-          {
-            "key": "Content-Type",
-            "value": "application/json"
-          }
-        ],
-        "body": {
-          "mode": "raw",
-          "raw": "{}"
-        },
-        "url": {
-          "raw": "https://tabit-worker.tony-578.workers.dev/catalog?api_key=wqiuefdy8y18e",
-          "protocol": "https",
-          "host": ["tabit-worker", "tony-578", "workers", "dev"],
-          "path": ["catalog"],
-          "query": [
-            {
-              "key": "api_key",
-              "value": "wqiuefdy8y18e"
-            }
-          ]
-        }
-      }
-    },
-    {
-      "name": "Get Menu Summary (Query Param)",
+      "name": "Get Menu Summary (with API Key)",
       "request": {
         "method": "GET",
         "header": [],
         "url": {
-          "raw": "https://tabit-worker.tony-578.workers.dev/menu-summary?api_key=wqiuefdy8y18e",
+          "raw": "https://api.khashokausa.info/menu-summary?api_key=wqiuefdy8y18e",
           "protocol": "https",
-          "host": ["tabit-worker", "tony-578", "workers", "dev"],
+          "host": ["api", "khashokausa", "info"],
           "path": ["menu-summary"],
           "query": [
             {
               "key": "api_key",
               "value": "wqiuefdy8y18e",
-              "description": "Returns condensed menu (~8KB instead of ~269KB)"
+              "description": "Returns lightweight menu summary"
             }
           ]
         },
-        "description": "Fetch lightweight menu summary (alternative for GHL if catalog is too large)"
+        "description": "Fetch condensed menu (~8KB instead of ~269KB)"
       }
     },
     {
-      "name": "Get Catalog (Header Method - Fallback)",
-      "request": {
-        "method": "GET",
-        "header": [
-          {
-            "key": "X-API-Key",
-            "value": "wqiuefdy8y18e",
-            "description": "API Key in header (fallback for non-GHL clients)"
-          }
-        ],
-        "url": {
-          "raw": "https://tabit-worker.tony-578.workers.dev/catalog",
-          "protocol": "https",
-          "host": ["tabit-worker", "tony-578", "workers", "dev"],
-          "path": ["catalog"]
-        }
-      }
-    },
-    {
-      "name": "Submit Order",
-      "request": {
-        "method": "POST",
-        "header": [
-          {
-            "key": "Content-Type",
-            "value": "application/json"
-          },
-          {
-            "key": "X-API-Key",
-            "value": "wqiuefdy8y18e"
-          }
-        ],
-        "body": {
-          "mode": "raw",
-          "raw": "{\n  \"ConsumerName\": \"John Doe\",\n  \"Phone\": \"+1234567890\",\n  \"OrderType\": \"takeaway\",\n  \"OrderNumber\": 12345,\n  \"ExtId\": \"test_order_001\",\n  \"Items\": [\n    {\n      \"id\": \"2361\",\n      \"name\": \"6 Chicken Wings\",\n      \"count\": 1,\n      \"options\": [\n        {\n          \"id\": \"68e7b82e893d90398a570415\",\n          \"name\": \"Serving/Prep\",\n          \"value_id\": \"68e7b82e893d90398a570417\",\n          \"value\": \"Mix\",\n          \"count\": 1\n        },\n        {\n          \"id\": \"68e7b82e893d90398a570419\",\n          \"name\": \"Dip\",\n          \"value_id\": \"68e7b82e893d90398a57041a\",\n          \"value\": \"Ranch Dip\",\n          \"count\": 1\n        }\n      ]\n    }\n  ]\n}"
-        },
-        "url": {
-          "raw": "https://tabit-worker.tony-578.workers.dev/order",
-          "protocol": "https",
-          "host": ["tabit-worker", "tony-578", "workers", "dev"],
-          "path": ["order"]
-        },
-        "description": "Submit a test order to Tabit"
-      }
-    },
-    {
-      "name": "Submit Order (Query Param)",
+      "name": "Submit Order via GHL Workflow",
       "request": {
         "method": "POST",
         "header": [
@@ -147,12 +101,35 @@
         ],
         "body": {
           "mode": "raw",
-          "raw": "{\n  \"ConsumerName\": \"John Doe\",\n  \"Phone\": \"+1234567890\",\n  \"OrderType\": \"takeaway\",\n  \"OrderNumber\": 12345,\n  \"ExtId\": \"test_order_002\",\n  \"Items\": [\n    {\n      \"id\": \"2361\",\n      \"name\": \"6 Chicken Wings\",\n      \"count\": 1,\n      \"options\": [\n        {\n          \"id\": \"68e7b82e893d90398a570415\",\n          \"name\": \"Serving/Prep\",\n          \"value_id\": \"68e7b82e893d90398a570417\",\n          \"value\": \"Mix\",\n          \"count\": 1\n        }\n      ]\n    }\n  ]\n}"
+          "raw": "{\n  \"order_items\": \"Chicken Wings|Large|2|Mix+Ranch\",\n  \"order_type\": \"pickup\",\n  \"customer_name\": \"John Doe\",\n  \"customer_phone\": \"+1234567890\",\n  \"delivery_address\": \"\",\n  \"delivery_notes\": \"\"\n}"
         },
         "url": {
-          "raw": "https://tabit-worker.tony-578.workers.dev/order?api_key=wqiuefdy8y18e",
+          "raw": "https://api.khashokausa.info/submit-order",
           "protocol": "https",
-          "host": ["tabit-worker", "tony-578", "workers", "dev"],
+          "host": ["api", "khashokausa", "info"],
+          "path": ["submit-order"]
+        },
+        "description": "NEW: Submit order from GHL Workflow (NO API KEY required). Returns {success, order_id, order_number, order_total}"
+      }
+    },
+    {
+      "name": "Submit Order (Legacy with API Key)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"ConsumerName\": \"Jane Smith\",\n  \"Phone\": \"+15551234567\",\n  \"OrderType\": \"takeaway\",\n  \"OrderNumber\": 12345,\n  \"ExtId\": \"test_order_001\",\n  \"Items\": [\n    {\n      \"id\": \"2361\",\n      \"name\": \"6 Chicken Wings\",\n      \"count\": 1,\n      \"options\": [\n        {\n          \"id\": \"68e7b82e893d90398a570415\",\n          \"name\": \"Serving/Prep\",\n          \"value_id\": \"68e7b82e893d90398a570417\",\n          \"value\": \"Mix\",\n          \"count\": 1\n        },\n        {\n          \"id\": \"68e7b82e893d articulated90a570419\",\n          \"name\": \"Dip\",\n          \"value_id\": \"68e7b82e893d90398a57041a\",\n          \"value\": \"Ranch Dip\",\n          \"count\": 1\n        }\n      ]\n    }\n  ]\n}"
+        },
+        "url": {
+          "raw": "https://api.khashokausa.info/order?api_key=wqiuefdy8y18e",
+          "protocol": "https",
+          "host": ["api", "khashokausa", "info"],
           "path": ["order"],
           "query": [
             {
@@ -161,62 +138,11 @@
             }
           ]
         },
-        "description": "Submit order with API key in query parameter (GHL-compatible)"
-      }
-    },
-    {
-      "name": "Test Without API Key (Should Fail)",
-      "request": {
-        "method": "GET",
-        "header": [],
-        "url": {
-          "raw": "https://tabit-worker.tony-578.workers.dev/catalog",
-          "protocol": "https",
-          "host": ["tabit-worker", "tony-578", "workers", "dev"],
-          "path": ["catalog"]
-        },
-        "description": "Test that API key validation works (should return 401)"
-      }
-    },
-    {
-      "name": "Test Invalid API Key",
-      "request": {
-        "method": "GET",
-        "header": [],
-        "url": {
-          "raw": "https://tabit-worker.tony-578.workers.dev/catalog?api_key=invalid_key",
-          "protocol": "https",
-          "host": ["tabit-worker", "tony-578", "workers", "dev"],
-          "path": ["catalog"],
-          "query": [
-            {
-              "key": "api_key",
-              "value": "invalid_key"
-            }
-          ]
-        },
-        "description": "Test invalid API key (should return 401)"
+        "description": "Submit order with Tabit format (requires API key)"
       }
     },
     {
       "name": "Menu Update Webhook",
-      "event": [
-        {
-          "listen": "test",
-          "script": {
-            "type": "text/javascript",
-            "exec": [
-              "pm.test(\"Status code is 200\", function () {",
-              "    pm.response.to.have.status(200);",
-              "});",
-              "",
-              "pm.test(\"Response is JSON\", function () {",
-              "    pm.response.to.be.json;",
-              "});"
-            ]
-          }
-        }
-      ],
       "request": {
         "method": "POST",
         "header": [
@@ -230,12 +156,12 @@
           "raw": "{\n  \"type\": \"menu_update\",\n  \"timestamp\": \"2025-01-27T12:00:00Z\"\n}"
         },
         "url": {
-          "raw": "https://tabit-worker.tony-578.workers.dev/webhooks/tabit/menu-update",
+          "raw": "https://api.khashokausa.info/webhooks/tabit/menu-update",
           "protocol": "https",
-          "host": ["tabit-worker", "tony-578", "workers", "dev"],
+          "host": ["api", "khashokausa", "info"],
           "path": ["webhooks", "tabit", "menu-update"]
         },
-        "description": "Webhook to invalidate menu cache"
+        "description": "Invalidates menu cache (10 minute TTL reset)"
       }
     },
     {
@@ -253,26 +179,54 @@
           "raw": "{\n  \"order_id\": \"test_123\",\n  \"status\": \"SUCCESS\",\n  \"external_id\": \"ext_test_001\"\n}"
         },
         "url": {
-          "raw": "https://tabit-worker.tony-578.workers.dev/webhooks/tabit/order-status",
+          "raw": "https://api.khashokausa.info/webhooks/tabit/order-status",
           "protocol": "https",
-          "host": ["tabit-worker", "tony-578", "workers", "dev"],
+          "host": ["api", "khashokausa", "info"],
           "path": ["webhooks", "tabit", "order-status"]
         },
         "description": "Receive order status updates from Tabit"
+      }
+    },
+    {
+      "name": "Test - No API Key (Should Fail)",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "https://api.khashokausa.info/catalog",
+          "protocol": "https",
+          "host": ["api", "khashokausa", "info"],
+          "path": ["catalog"]
+        },
+        "description": "Test API key validation (should return 401)"
+      }
+    },
+    {
+      "name": "Test - Invalid API Key",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "https://api.khashokausa.info/catalog?api_key=invalid_key",
+          "protocol": "https",
+          "host": ["api", "khashokausa", "info"],
+          "path": ["catalog"],
+          "query": [
+            {
+              "key": "api_key",
+              "value": "invalid_key"
+            }
+          ]
+        },
+        "description": "Test with invalid API key (should return 401)"
       }
     }
   ],
   "variable": [
     {
       "key": "base_url",
-      "value": "https://tabit-worker.tony-578.workers.dev",
-      "type": "string"
-    },
-    {
-      "key": "custom_domain",
       "value": "https://api.khashokausa.info",
-      "type": "string",
-      "description": "Custom domain (configure in Cloudflare first)"
+      "type": "string"
     },
     {
       "key": "api_key",

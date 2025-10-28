@@ -1,0 +1,70 @@
+{
+  "info": {
+    "name": "Submit Order to Tabit",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Submit Order",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"order_items\": \"Chicken Wings|Large|2|Mix+Ranch\",\n  \"order_type\": \"pickup\",\n  \"customer_name\": \"John Doe\",\n  \"customer_phone\": \"+1234567890\",\n  \"delivery_address\": \"\",\n  \"delivery_notes\": \"\"\n}"
+        },
+        "url": {
+          "raw": "https://api.khashokausa.info/submit-order",
+          "protocol": "https",
+          "host": [
+            "api",
+            "khashokausa",
+            "info"
+          ],
+          "path": [
+            "submit-order"
+          ]
+        }
+      },
+      "response": [
+        {
+          "name": "Success Response",
+          "originalRequest": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"order_items\": \"Chicken Wings|Large|2|Mix+Ranch\",\n  \"order_type\": \"pickup\",\n  \"customer_name\": \"John Doe\",\n  \"customer_phone\": \"+1234567890\"\n}"
+            },
+            "url": {
+              "raw": "https://api.khashokausa.info/submit-order",
+              "protocol": "https",
+              "host": [
+                "api",
+                "khashokausa",
+                "info"
+              ],
+              "path": [
+                "submit-order"
+              ]
+            }
+          },
+          "status": "OK",
+          "code": 200,
+          "body": "{\n  \"success\": true,\n  \"order_id\": \"ORD_1761617373776_zxb8zkckx\",\n  \"order_number\": 1761617373,\n  \"order_total\": 20,\n  \"status\": \"submitted\",\n  \"message\": \"Order submitted successfully\"\n}"
+        }
+      ]
+    }
+  ]
+}
+
